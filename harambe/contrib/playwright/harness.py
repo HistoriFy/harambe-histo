@@ -48,12 +48,13 @@ async def playwright_harness(
             if cdp_endpoint
             else getattr(p, cast(str, browser_type or "chromium")).launch(
                 headless=headless,
+                # NOTE: added channel "chrome" arg
+                channel="chrome",
                 args=[
                     *(
                         # Disables navigator.webdriver showing up
+                        # NOTE: Changed for all type of browsers
                         ["--disable-blink-features=AutomationControlled"]
-                        if browser_type == "chromium"
-                        else []
                     ),
                     *(
                         # New chromium headless mode
@@ -65,7 +66,8 @@ async def playwright_harness(
 
         # TODO: More intelligently generate based on current system specs
         # randomly generating agents will create inconsistent fingerprints
-        ua = ua_generator.generate(device="desktop", browser=("chrome", "edge"))
+        # NOTE: removed edge user agent
+        ua = ua_generator.generate(device="desktop", browser=("chrome"))
         user_agent = user_agent if user_agent else ua.headers.get()["user-agent"]
 
         ctx = await browser.new_context(
